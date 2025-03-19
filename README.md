@@ -5,7 +5,7 @@
 ![Flask](https://img.shields.io/badge/flask-2.0+-orange.svg)
 
 <p align="center">
-  <img src="docs/images/main-interface.png" alt="Retro Hardware Inventory Interface" width="800">
+  <img src="docs/images/main-dashboard.png" alt="Retro Hardware Inventory Interface" width="800">
   <br>
   <em>A synthwave-styled inventory management system for electronic components</em>
 </p>
@@ -32,22 +32,6 @@
 <p align="center">
   <img src="docs/images/duplicate-detection.png" alt="Duplicate Detection" width="400">
   <img src="docs/images/edit-interface.png" alt="Edit Interface" width="400">
-</p>
-
-## 🎬 Demo Videos
-
-### Component Addition Animation
-<p align="center">
-  <a href="docs/videos/component-animation.mp4">
-    <img src="docs/images/video-thumbnail-1.png" alt="Component Animation" width="400">
-  </a>
-</p>
-
-### Duplicate Detection and Merging
-<p align="center">
-  <a href="docs/videos/duplicate-merging.mp4">
-    <img src="docs/images/video-thumbnail-2.png" alt="Duplicate Merging" width="400">
-  </a>
 </p>
 
 ## 🚀 Getting Started
