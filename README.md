@@ -146,12 +146,9 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 📝 Acknowledgements
 
 - Inspired by retro computing and 80s aesthetics
 - Icon libraries: Bootstrap Icons
 - Fonts: Press Start 2P, VT323, and Orbitron from Google Fonts
+- OpenAI API for natural language processing
