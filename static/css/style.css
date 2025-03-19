@@ -1,0 +1,945 @@
+/* Retro 80s Electronics Theme */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Orbitron:wght@400;500;700&display=swap');
+
+:root {
+  --primary-color: #ff00ff; /* Magenta */
+  --secondary-color: #00ffff; /* Cyan */
+  --accent-color: #39ff14; /* Neon Green */
+  --dark-bg: #0a0a23;
+  --darker-bg: #050518;
+  --light-text: #f0f0ff;
+  --grid-color: rgba(0, 255, 255, 0.15);
+  --glow-magenta: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+  --glow-cyan: 0 0 5px #00ffff, 0 0 10px #00ffff;
+  --glow-green: 0 0 5px #39ff14, 0 0 10px #39ff14;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: var(--light-text);
+  font-family: 'VT323', monospace;
+  font-size: 1.2rem;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body:before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+  z-index: -1;
+}
+
+/* Circuit board pattern overlay */
+body:after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M10,30 L90,30 M30,10 L30,90" stroke="rgba(0,255,255,0.05)" stroke-width="2"/></svg>');
+  background-size: 100px 100px;
+  z-index: -1;
+  opacity: 0.4;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: var(--glow-cyan);
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+  padding-bottom: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  background-color: rgba(10, 10, 35, 0.85);
+  border: 2px solid var(--primary-color);
+  border-radius: 5px;
+  box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+  margin-bottom: 20px;
+  backdrop-filter: blur(3px);
+}
+
+.card-header {
+  background-color: rgba(255, 0, 255, 0.2);
+  border-bottom: 2px solid var(--primary-color);
+  padding: 15px;
+}
+
+.card-header h4 {
+  margin: 0;
+}
+
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--dark-bg);
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  box-shadow: var(--glow-magenta);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #ff40ff;
+  border-color: #ff40ff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--primary-color);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--dark-bg);
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  box-shadow: var(--glow-cyan);
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+  background-color: #40ffff;
+  border-color: #40ffff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--secondary-color);
+}
+
+.btn-outline-secondary {
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-outline-secondary:hover, .btn-outline-secondary:focus {
+  background-color: var(--secondary-color);
+  color: var(--dark-bg);
+}
+
+.btn-outline-info {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-outline-info:hover, .btn-outline-info:focus {
+  background-color: var(--accent-color);
+  color: var(--dark-bg);
+  border-color: var(--accent-color);
+}
+
+.btn-outline-danger {
+  color: #ff6347;
+  border-color: #ff6347;
+}
+
+.btn-outline-danger:hover, .btn-outline-danger:focus {
+  background-color: #ff6347;
+  color: var(--dark-bg);
+}
+
+.btn-outline-success {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.btn-outline-success:hover, .btn-outline-success:focus {
+  background-color: var(--accent-color);
+  color: var(--dark-bg);
+}
+
+#componentInput {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--primary-color);
+  color: var(--light-text);
+  font-family: 'VT323', monospace;
+  font-size: 1.4rem;
+  padding: 15px;
+  transition: all 0.3s ease;
+}
+
+#componentInput:focus {
+  box-shadow: 0 0 0 3px rgba(255, 0, 255, 0.25);
+  border-color: var(--secondary-color);
+}
+
+#parsePreview {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 15px;
+  border-radius: 5px;
+  border: 1px solid var(--secondary-color);
+  box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.form-control, .form-select {
+  background-color: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--primary-color);
+  color: var(--light-text);
+  font-family: 'VT323', monospace;
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: var(--light-text);
+  box-shadow: 0 0 0 3px rgba(255, 0, 255, 0.25);
+  border-color: var(--secondary-color);
+}
+
+.form-check-input:checked {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.input-group-text {
+  background-color: var(--primary-color);
+  color: var(--dark-bg);
+  border-color: var(--primary-color);
+  font-weight: bold;
+}
+
+.table {
+  color: var(--light-text);
+}
+
+.table thead th {
+  background-color: rgba(255, 0, 255, 0.2);
+  color: var(--secondary-color);
+  border-color: var(--primary-color);
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 12px 10px;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(255, 0, 255, 0.1);
+}
+
+.bg-light {
+  background-color: rgba(255, 0, 255, 0.15) !important;
+  color: var(--light-text);
+  text-shadow: var(--glow-magenta);
+}
+
+.zero-quantity {
+  color: #ff6347 !important;
+  font-weight: bold;
+  text-shadow: 0 0 5px rgba(255, 99, 71, 0.8);
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-control button {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.875rem;
+}
+
+.quantity-control span {
+  padding: 0 0.5rem;
+  min-width: 2.5rem;
+  text-align: center;
+}
+
+.form-text {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Retro loading animation */
+.loading {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.loading:after {
+  content: " ";
+  display: block;
+  border-radius: 50%;
+  width: 0;
+  height: 0;
+  box-sizing: border-box;
+  border: 32px solid var(--primary-color);
+  border-color: var(--primary-color) transparent var(--secondary-color) transparent;
+  animation: loading 1.2s infinite;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0);
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  50% {
+    transform: rotate(180deg);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Neon text flicker animation */
+.neon-flicker {
+  animation: flicker 3s infinite alternate;
+}
+
+@keyframes flicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: var(--glow-cyan);
+  }
+  20%, 24%, 55% {
+    text-shadow: none;
+  }
+}
+
+/* Retro scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--darker-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff40ff;
+}
+
+/* Enhanced Modal Styling for Retro Theme */
+.modal-content {
+  background-color: var(--darker-bg);
+  border: 2px solid var(--primary-color);
+  color: var(--light-text);
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+  backdrop-filter: blur(5px);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--primary-color);
+  background-color: rgba(255, 0, 255, 0.2);
+  padding: 1rem;
+}
+
+.modal-header .modal-title {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: var(--glow-cyan);
+  margin: 0;
+}
+
+.modal-header .btn-close {
+  background-color: transparent;
+  border: 1px solid var(--secondary-color);
+  color: var(--secondary-color);
+  opacity: 0.7;
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 3px;
+}
+
+.modal-header .btn-close:hover {
+  opacity: 1;
+  box-shadow: var(--glow-cyan);
+}
+
+.modal-body {
+  padding: 1.5rem;
+  background-color: rgba(10, 10, 35, 0.9);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--primary-color);
+  background-color: rgba(255, 0, 255, 0.1);
+  padding: 1rem;
+}
+
+/* Custom animation for modal appearance */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  transform: translateY(-50px) scale(0.95);
+  opacity: 0;
+}
+
+.modal.show .modal-dialog {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* CRT screen effect for modals */
+.modal-content:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+  background-size: 100% 4px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* Modal table styling */
+.modal-body table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.modal-body table th {
+  background-color: rgba(0, 255, 255, 0.1);
+  color: var(--secondary-color);
+  text-transform: uppercase;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--primary-color);
+}
+
+.modal-body table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid rgba(255, 0, 255, 0.2);
+}
+
+.modal-body table tr:hover td {
+  background-color: rgba(255, 0, 255, 0.1);
+}
+
+/* Neon input fields for modals */
+.modal-body .form-control {
+  background-color: rgba(10, 10, 35, 0.8);
+  border: 1px solid var(--primary-color);
+  color: var(--light-text);
+  padding: 0.5rem 1rem;
+}
+
+.modal-body .form-control:focus {
+  box-shadow: 0 0 0 0.25rem rgba(255, 0, 255, 0.25);
+  border-color: var(--secondary-color);
+}
+
+/* Storage edit field special styling */
+#storageLocationInput {
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--secondary-color);
+  color: var(--accent-color);
+  font-family: 'VT323', monospace;
+  letter-spacing: 1px;
+  padding: 0.75rem;
+  font-size: 1.2rem;
+}
+
+/* Make modal buttons consistent with site theme */
+.modal-footer .btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: var(--darker-bg);
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  box-shadow: var(--glow-magenta);
+  transition: all 0.3s ease;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #ff40ff;
+  border-color: #ff40ff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--primary-color);
+}
+
+.modal-footer .btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: var(--darker-bg);
+  font-family: 'Orbitron', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  box-shadow: var(--glow-cyan);
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #40ffff;
+  border-color: #40ffff;
+  transform: translateY(-2px);
+  box-shadow: 0 0 10px var(--secondary-color);
+}
+
+#inventoryTable tr:hover {
+    background-color: #e9ecef;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    background-color: #6c757d;
+    color: white;
+    border-radius: 15px;
+    font-size: 0.85rem;
+}
+
+/* Blinking cursor animation */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.blink-cursor {
+  animation: blink 1s steps(1) infinite;
+  display: inline-block;
+  width: 8px;
+  height: 16px;
+  background-color: var(--secondary-color);
+  vertical-align: middle;
+}
+
+/* Terminal styling */
+.terminal-header {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  color: #8f8f8f;
+  padding: 5px 0;
+}
+
+.terminal-line {
+  font-family: 'VT323', monospace;
+  font-size: 1.1rem;
+  color: #8f8f8f;
+}
+
+/* Highlight rows with similar items */
+tr.has-similar {
+  position: relative;
+}
+
+tr.has-similar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: var(--warning-color, #ffc107);
+  box-shadow: 0 0 5px #ffc107;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* Style for the similar components button */
+.find-similar-btn {
+  background-color: rgba(255, 193, 7, 0.2);
+  border-color: #ffc107;
+  color: #ffc107;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.find-similar-btn:hover {
+  background-color: rgba(255, 193, 7, 0.4);
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Duplicate badge */
+.duplicate-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.blink-text {
+  color: #ffc107;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  animation: blink-text 1.5s linear infinite alternate;
+}
+
+@keyframes blink-text {
+  0% { opacity: 0.7; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
+/* Terminal warning */
+.terminal-warning {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 1px solid var(--warning-color, #ffc107);
+  border-left: 5px solid var(--warning-color, #ffc107);
+  padding: 0.75rem;
+  font-family: 'VT323', monospace;
+  letter-spacing: 0.5px;
+}
+
+.terminal-prompt {
+  color: var(--warning-color, #ffc107);
+  font-weight: bold;
+  margin-right: 0.5rem;
+}
+
+.terminal-output {
+  color: #f8f9fa;
+}
+
+/* Specific styling for the edit component modal */
+#editComponentModal .form-label {
+  color: var(--secondary-color);
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  margin-bottom: 0.25rem;
+}
+
+/* Edit button styling */
+.edit-component-btn {
+  background-color: rgba(0, 123, 255, 0.1);
+  border-color: #007bff;
+  color: #007bff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.edit-component-btn:hover {
+  background-color: rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Special animation for saving */
+@keyframes save-flash {
+  0% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.7; transform: scale(1); }
+}
+
+#saveComponentBtn:active {
+  animation: save-flash 0.3s forwards;
+}
+
+/* Tooltip styling */
+[data-bs-toggle="tooltip"] {
+  cursor: help;
+  border-bottom: 1px dashed rgba(0, 255, 255, 0.5);
+}
+
+/* Delete button styling */
+.delete-component-btn {
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: #dc3545;
+  color: #dc3545;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.delete-component-btn:hover {
+  background-color: rgba(220, 53, 69, 0.3);
+  box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+  transform: translateY(-2px);
+}
+
+/* Add a warning animation for delete button */
+@keyframes warning-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.delete-component-btn:hover {
+  animation: warning-pulse 1.5s infinite;
+}
+
+/* Fix for table text colors */
+.table {
+  color: var(--light-text);
+}
+
+/* Fix table rows specifically */
+#inventoryTable tr td {
+  color: var(--light-text);
+}
+
+/* Improve hover highlight to provide better contrast */
+.table-striped tbody tr:hover {
+  background-color: rgba(255, 0, 255, 0.2) !important;
+  color: var(--light-text) !important;
+}
+
+/* Override Bootstrap's default table hover style */
+.table-hover tbody tr:hover,
+.table tbody tr:hover {
+  color: var(--light-text) !important;
+  background-color: rgba(255, 0, 255, 0.15);
+}
+
+/* Fix stripe alternating row colors */
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(10, 10, 35, 0.3);
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background-color: rgba(10, 10, 35, 0.6);
+}
+
+/* Fix small text in tables */
+.table .small, 
+.table small {
+  color: var(--light-text);
+  opacity: 0.85;
+}
+
+/* Make sure text in badges remains visible */
+.badge {
+  color: var(--darker-bg) !important;
+}
+
+/* Exception for text-muted which needs to remain visible */
+.text-muted {
+  color: rgba(240, 240, 255, 0.65) !important;
+}
+
+/* New component highlight and animation styles */
+.new-component {
+  animation: highlight-pulse 2s infinite;
+  background-color: rgba(57, 255, 20, 0.15) !important;
+  position: relative;
+}
+
+@keyframes highlight-pulse {
+  0% { background-color: rgba(57, 255, 20, 0.1); }
+  50% { background-color: rgba(57, 255, 20, 0.3); }
+  100% { background-color: rgba(57, 255, 20, 0.1); }
+}
+
+.new-component::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.5);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.animating-clone {
+  box-shadow: 0 0 20px var(--accent-color);
+  z-index: 10;
+  opacity: 0.95;
+  background: var(--darker-bg) !important;
+  pointer-events: none;
+}
+
+.target-position {
+  background-color: rgba(57, 255, 20, 0.15) !important;
+  transition: background-color 0.5s ease;
+}
+
+.new-item-badge {
+  display: inline-block;
+  background-color: var(--accent-color);
+  color: var(--darker-bg);
+  font-size: 0.65rem;
+  padding: 0.15rem 0.35rem;
+  margin-left: 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: bold;
+  font-family: 'Orbitron', sans-serif;
+  animation: badge-flash 1s infinite alternate;
+  vertical-align: middle;
+}
+
+@keyframes badge-flash {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Adding component animation overlay */
+.adding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(5, 5, 24, 0.9);
+  z-index: 9999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.5s ease;
+}
+
+.adding-overlay.fade-out {
+  opacity: 0;
+}
+
+.adding-container {
+  width: 90%;
+  max-width: 600px;
+  background-color: var(--darker-bg);
+  border: 2px solid var(--accent-color);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.5);
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.adding-header {
+  font-family: 'Orbitron', sans-serif;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: 20px;
+  text-shadow: 0 0 5px var(--accent-color);
+}
+
+.adding-content {
+  font-family: 'VT323', monospace;
+  color: var(--light-text);
+  font-size: 1.2rem;
+}
+
+.progress {
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--accent-color);
+}
+
+.progress-bar {
+  background-color: var(--accent-color) !important;
+}
+
+/* Styling for new component header */
+.new-component-header td {
+  background-color: var(--accent-color) !important;
+  color: var(--darker-bg) !important;
+  padding: 10px !important;
+  text-align: center;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  animation: glow-pulse 1.5s infinite alternate;
+  border-bottom: 2px solid var(--darker-bg);
+}
+
+@keyframes glow-pulse {
+  0% { box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.5); }
+  100% { box-shadow: inset 0 0 20px rgba(57, 255, 20, 0.8); }
+}
+
+/* Better visibility for category headers */
+.category-header td {
+  background-color: rgba(0, 255, 255, 0.1) !important;
+  color: var(--secondary-color) !important;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 1px;
+  padding: 8px 15px !important;
+  border-bottom: 1px solid var(--secondary-color);
+  border-top: 1px solid var(--secondary-color);
+}
+
+/* Spacer row styling */
+.spacer-row td {
+  background-color: transparent !important;
+  border: none !important;
+  height: 20px;
+  padding: 0 !important;
+}
+
+/* Quick delete button styling */
+.quick-delete-btn {
+  width: 38px;
+  height: 31px;
+  padding: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(220, 53, 69, 0.1);
+  border-color: #dc3545;
+  color: #dc3545;
+  transition: all 0.2s ease;
+}
+
+.quick-delete-btn:hover {
+  background-color: rgba(220, 53, 69, 0.2);
+  box-shadow: 0 0 8px rgba(220, 53, 69, 0.6);
+  transform: translateY(-1px);
+}
+
+.quick-delete-btn i {
+  font-size: 0.9rem;
+}
+
+/* Better alignment of buttons in action column */
+td .d-flex.gap-1 {
+  justify-content: flex-start;
+}
+
+/* Smooth fade out animation for deleted rows */
+@keyframes delete-fade-out {
+  0% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(50px); height: 0; margin: 0; padding: 0; }
+}
+
+.deleting {
+  animation: delete-fade-out 0.5s forwards;
+  overflow: hidden;
+} 
