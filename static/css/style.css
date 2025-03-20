@@ -942,4 +942,18 @@ td .d-flex.gap-1 {
 .deleting {
   animation: delete-fade-out 0.5s forwards;
   overflow: hidden;
+}
+
+/* Not Similar button styling */
+.not-similar-btn {
+  background-color: rgba(108, 117, 125, 0.1);
+  border-color: #6c757d;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.not-similar-btn:hover {
+  background-color: rgba(108, 117, 125, 0.2);
+  box-shadow: 0 0 8px rgba(108, 117, 125, 0.6);
+  transform: translateY(-1px);
 } 

@@ -496,126 +496,97 @@ function showSimilarComponents(componentId) {
     fetch(`/api/components/${componentId}/similar`)
     .then(response => response.json())
     .then(data => {
-        // Create modal container if it doesn't exist
-        let modalContainer = document.getElementById('similarComponentsModal');
-        if (modalContainer) {
-            modalContainer.remove();
+        if (data.length === 0) {
+            alert('No similar components found');
+            return;
         }
         
-        modalContainer = document.createElement('div');
-        modalContainer.id = 'similarComponentsModal';
-        modalContainer.className = 'modal fade';
-        modalContainer.setAttribute('tabindex', '-1');
-        document.body.appendChild(modalContainer);
-        
-        // Get the current component
-        const currentComponent = document.querySelector(`tr[data-component-id="${componentId}"]`);
-        const componentName = currentComponent.querySelector('td:nth-child(2)').textContent;
-        
-        // Build retro-styled modal HTML
-        const modalHtml = `
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            <i class="bi bi-circuit-board me-2"></i>
-                            SIMILAR COMPONENTS
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="current-component mb-3 p-2" style="border: 1px dashed var(--secondary-color); background: rgba(0,255,255,0.1);">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <span class="badge bg-info me-2">CURRENT</span>
-                                    <strong>${componentName}</strong>
-                                </div>
+        let modalHTML = `
+            <div class="modal fade" id="similarComponentsModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Similar Components</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                The following components appear to be similar. You can merge them or mark them as not similar.
                             </div>
-                        </div>
-                        <div class="terminal-header mb-2">
-                            <span class="text-secondary">// SCANNING DATABASE FOR SIMILAR COMPONENTS...</span>
-                        </div>
-                        ${data.length > 0 ? `
                             <div class="table-responsive">
-                                <table class="table">
+                                <table class="table table-bordered">
                                     <thead>
                                         <tr>
                                             <th>Name</th>
                                             <th>Specifications</th>
-                                            <th>Source</th>
                                             <th>Quantity</th>
                                             <th>Storage</th>
-                                            <th>Action</th>
+                                            <th>Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="similarComponentsTable">
-                                        ${data.map(comp => `
-                                            <tr data-component-id="${comp.id}">
-                                                <td>${comp.name}</td>
-                                                <td>${comp.specifications || 'N/A'}</td>
-                                                <td>${comp.source || 'N/A'}</td>
-                                                <td>${comp.quantity}</td>
-                                                <td>${comp.storage || 'Not specified'}</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-primary merge-into-btn">
-                                                        <i class="bi bi-arrow-down-right-square"></i> Merge Into This
-                                                    </button>
-                                                    <button class="btn btn-sm btn-secondary merge-from-btn mt-1">
-                                                        <i class="bi bi-arrow-up-left-square"></i> Merge From This
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        `).join('')}
+                                    <tbody>
+        `;
+        
+        data.forEach(component => {
+            modalHTML += `
+                <tr data-component-id="${component.id}">
+                    <td>${component.name}</td>
+                    <td>${component.specifications || 'N/A'}</td>
+                    <td>${component.quantity}</td>
+                    <td>${component.storage || 'Not specified'}</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-primary merge-btn" data-component-id="${component.id}">
+                                <i class="bi bi-diagram-3-fill me-1"></i> Merge
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary not-similar-btn" data-component-id="${component.id}">
+                                <i class="bi bi-x-circle me-1"></i> Not Similar
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        modalHTML += `
                                     </tbody>
                                 </table>
                             </div>
-                        ` : `
-                            <div class="alert" style="background-color: rgba(255,0,0,0.2); color: #ff6b6b; border: 1px solid #ff6b6b;">
-                                <i class="bi bi-exclamation-triangle me-2"></i>
-                                NO SIMILAR COMPONENTS FOUND IN DATABASE
-                            </div>
-                        `}
-                    </div>
-                    <div class="modal-footer">
-                        <div class="terminal-line text-secondary me-auto">
-                            <span class="blink-cursor">_</span>
                         </div>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="bi bi-x-circle me-1"></i> CLOSE
-                        </button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
         
-        modalContainer.innerHTML = modalHtml;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
         
-        // Initialize the Bootstrap modal
-        const modal = new bootstrap.Modal(modalContainer);
+        const modal = new bootstrap.Modal(document.getElementById('similarComponentsModal'));
         modal.show();
         
-        // Add blinking cursor animation
-        const blinkCursor = modalContainer.querySelector('.blink-cursor');
-        setInterval(() => {
-            blinkCursor.style.opacity = blinkCursor.style.opacity === '0' ? '1' : '0';
-        }, 500);
+        // Merge button listeners
+        document.querySelectorAll('.merge-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const similarId = this.getAttribute('data-component-id');
+                mergeComponents(componentId, similarId, modal);
+            });
+        });
         
-        // Add event listeners for merge buttons
-        if (data.length > 0) {
-            modalContainer.querySelectorAll('.merge-into-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const targetId = this.closest('tr').dataset.componentId;
-                    mergeComponents(componentId, targetId, modal);
-                });
+        // Not Similar button listeners
+        document.querySelectorAll('.not-similar-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const similarId = this.getAttribute('data-component-id');
+                markNotSimilar(componentId, similarId, this);
             });
-            
-            modalContainer.querySelectorAll('.merge-from-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const sourceId = this.closest('tr').dataset.componentId;
-                    mergeComponents(sourceId, componentId, modal);
-                });
-            });
-        }
+        });
+        
+        // Clean up the modal when it's hidden
+        document.getElementById('similarComponentsModal').addEventListener('hidden.bs.modal', function() {
+            this.remove();
+        });
     })
     .catch(error => {
         console.error('Error:', error);
@@ -1734,4 +1705,68 @@ function deleteComponent(componentId) {
             alert('Failed to delete component');
         });
     }
+}
+
+// Add function to mark components as not similar
+function markNotSimilar(componentId, similarId, button) {
+    button.disabled = true;
+    button.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Processing...';
+    
+    fetch(`/api/components/${componentId}/not-similar/${similarId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response error');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Remove the row from the table
+        const row = button.closest('tr');
+        row.style.transition = 'all 0.5s ease';
+        row.style.backgroundColor = 'rgba(255, 0, 0, 0.1)';
+        row.style.opacity = 0;
+        
+        setTimeout(() => {
+            row.remove();
+            
+            // Check if there are any rows left
+            const remainingRows = document.querySelectorAll('#similarComponentsModal tbody tr');
+            if (remainingRows.length === 0) {
+                // No more similar components, close the modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('similarComponentsModal'));
+                modal.hide();
+                
+                // Refresh the component list
+                loadComponents();
+            }
+        }, 500);
+        
+        // Show success message
+        const flashMessage = document.createElement('div');
+        flashMessage.className = 'alert alert-success position-fixed top-0 start-50 translate-middle-x mt-3';
+        flashMessage.style.zIndex = '9999';
+        flashMessage.innerHTML = `
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Components marked as not similar
+        `;
+        document.body.appendChild(flashMessage);
+        
+        // Remove the flash message after a few seconds
+        setTimeout(() => {
+            flashMessage.remove();
+        }, 3000);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to mark components as not similar');
+        
+        // Re-enable the button
+        button.disabled = false;
+        button.innerHTML = '<i class="bi bi-x-circle me-1"></i> Not Similar';
+    });
 } 

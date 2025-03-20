@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template, g
 import os
-from database import init_db, add_component, get_all_components_with_similarity_info, find_similar_components, merge_components, get_component_by_id, update_component_storage, update_component_quantity, search_components, update_component, delete_component
+from database import init_db, add_component, get_all_components_with_similarity_info, find_similar_components, merge_components, get_component_by_id, update_component_storage, update_component_quantity, search_components, update_component, delete_component, mark_components_not_similar
 from parser import parse_component
+import sqlite3
 
 app = Flask(__name__)
 
@@ -24,6 +25,25 @@ def before_request():
 # Alternatively, initialize immediately (outside of request context)
 # This works if init_db() doesn't need request context
 init_db()  # Initialize the database at startup
+
+# Replace before_first_request with a function that runs during app startup
+def create_excluded_similarities_table():
+    conn = sqlite3.connect('inventory.db')
+    conn.execute('''
+    CREATE TABLE IF NOT EXISTS excluded_similarities (
+        component1_id INTEGER NOT NULL,
+        component2_id INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (component1_id, component2_id),
+        FOREIGN KEY (component1_id) REFERENCES components (id),
+        FOREIGN KEY (component2_id) REFERENCES components (id)
+    )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Execute the function immediately
+create_excluded_similarities_table()
 
 @app.route('/')
 def index():
@@ -186,6 +206,18 @@ def delete_component_api(component_id):
         })
     else:
         return jsonify({'error': 'Failed to delete component'}), 400
+
+@app.route('/api/components/<int:component_id>/not-similar/<int:similar_id>', methods=['POST'])
+def mark_not_similar(component_id, similar_id):
+    """Mark two components as not similar"""
+    if mark_components_not_similar(component_id, similar_id):
+        return jsonify({
+            'message': 'Components marked as not similar successfully',
+            'component_id': component_id,
+            'similar_id': similar_id
+        })
+    else:
+        return jsonify({'error': 'Failed to mark components as not similar'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True) 

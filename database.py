@@ -88,53 +88,49 @@ def get_all_components():
     return result
 
 def find_similar_components(component_id):
-    """Find components similar to the given component_id"""
+    """Find components that are similar to the given component,
+    excluding those that have been explicitly marked as not similar"""
     conn = get_db_connection()
     
-    # Get the component data
-    component = conn.execute('''
-        SELECT c.category_id, c.name, c.specifications, c.source
-        FROM components c
-        WHERE c.id = ?
-    ''', (component_id,)).fetchone()
-    
+    # Get the component's details
+    component = conn.execute('SELECT * FROM components WHERE id = ?', (component_id,)).fetchone()
     if not component:
         conn.close()
         return []
     
-    # Find components in the same category with similar names
-    similar_components = conn.execute('''
-        SELECT c.id, c.name, c.specifications, c.source, c.quantity
-        FROM components c
-        WHERE c.id != ? 
-        AND c.category_id = ?
-        AND (
-            c.name LIKE ? 
-            OR ? LIKE '%' || c.name || '%'
-            OR c.name LIKE '%' || ? || '%'
-        )
-        ORDER BY c.name
-    ''', (
-        component_id, 
-        component['category_id'],
-        f"%{component['name']}%",
-        component['name'],
-        component['name']
-    )).fetchall()
+    # Check if excluded_similarities table exists
+    table_exists = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='excluded_similarities'"
+    ).fetchone()
+    
+    excluded_ids = []
+    
+    # Get excluded similarities if the table exists
+    if table_exists:
+        excluded = conn.execute('''
+            SELECT component2_id FROM excluded_similarities 
+            WHERE component1_id = ?
+        ''', (component_id,)).fetchall()
+        
+        excluded_ids = [row['component2_id'] for row in excluded]
+    
+    # Add the component itself to excluded list
+    excluded_ids.append(component_id)
+    
+    # Build an exclusion string for the SQL query
+    exclusion_placeholders = ', '.join(['?' for _ in excluded_ids])
+    
+    # Check for similar components, excluding the marked ones
+    similar_components = conn.execute(f'''
+        SELECT * FROM components 
+        WHERE category_id = ? 
+        AND name LIKE ? 
+        AND id NOT IN ({exclusion_placeholders})
+    ''', (component['category_id'], f'%{component["name"]}%', *excluded_ids)).fetchall()
     
     conn.close()
     
-    result = []
-    for similar in similar_components:
-        result.append({
-            'id': similar['id'],
-            'name': similar['name'],
-            'specifications': similar['specifications'],
-            'source': similar['source'],
-            'quantity': similar['quantity']
-        })
-    
-    return result
+    return [dict(c) for c in similar_components]
 
 def merge_components(source_id, target_id):
     """Merge source component into target component and delete the source"""
@@ -350,36 +346,57 @@ def search_components(query=None, filters=None):
     return result
 
 def get_all_components_with_similarity_info():
-    """Get all components with information about whether they have similar items"""
+    """Get all components with information about whether they have similar items
+    while respecting excluded similarity relationships"""
     conn = get_db_connection()
+    
+    # First, get all components
     components = conn.execute('''
         SELECT c.id, c.name, c.specifications, c.source, c.quantity, c.storage, c.created_at, 
-               cat.name as category
+               cat.name as category, c.category_id
         FROM components c
         JOIN categories cat ON c.category_id = cat.id
         ORDER BY cat.name, c.name
     ''').fetchall()
     
+    # Check if the excluded_similarities table exists
+    table_exists = conn.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='excluded_similarities'"
+    ).fetchone()
+    
+    # Get all excluded similarity relationships if the table exists
+    excluded_pairs = set()
+    if table_exists:
+        excluded = conn.execute('''
+            SELECT component1_id, component2_id FROM excluded_similarities
+        ''').fetchall()
+        
+        for row in excluded:
+            excluded_pairs.add((row['component1_id'], row['component2_id']))
+            excluded_pairs.add((row['component2_id'], row['component1_id']))  # Add both directions
+    
     # Format results and check for similarity
     result = []
     
-    # This is more efficient than checking each component against all others
-    components_by_name = {}
-    
-    # First pass: organize components by normalized name
+    # Group components by category for more accurate similarity detection
     for component in components:
-        # Create a normalized version of the name for comparison
-        normalized_name = component['name'].lower().strip()
+        has_similar = False
+        component_id = component['id']
         
-        if normalized_name not in components_by_name:
-            components_by_name[normalized_name] = []
-        
-        components_by_name[normalized_name].append(component['id'])
-    
-    # Second pass: create result with has_similar flag
-    for component in components:
-        normalized_name = component['name'].lower().strip()
-        has_similar = len(components_by_name[normalized_name]) > 1
+        # Compare with other components in the same category
+        for other in components:
+            if component_id == other['id']:
+                continue  # Skip self comparison
+                
+            # Skip if this pair is in the excluded list
+            if (component_id, other['id']) in excluded_pairs:
+                continue
+                
+            # Check if names are similar and in the same category
+            if (component['category_id'] == other['category_id'] and 
+                component['name'].lower().strip() == other['name'].lower().strip()):
+                has_similar = True
+                break
         
         result.append({
             'id': component['id'],
@@ -464,5 +481,35 @@ def delete_component(component_id):
         return True
     except Exception as e:
         print(f"Error deleting component: {e}")
+        conn.close()
+        return False 
+
+def mark_components_not_similar(component_id, similar_id):
+    """Mark two components as not similar to avoid future duplicate detection"""
+    conn = get_db_connection()
+    
+    try:
+        # Check if components exist
+        component1 = conn.execute('SELECT id FROM components WHERE id = ?', (component_id,)).fetchone()
+        component2 = conn.execute('SELECT id FROM components WHERE id = ?', (similar_id,)).fetchone()
+        
+        if not component1 or not component2:
+            conn.close()
+            return False
+        
+        # Add to excluded_similarities table (create this table if it doesn't exist)
+        conn.execute('INSERT OR IGNORE INTO excluded_similarities (component1_id, component2_id) VALUES (?, ?)', 
+                    (component_id, similar_id))
+        
+        # Also add the reverse relationship
+        conn.execute('INSERT OR IGNORE INTO excluded_similarities (component1_id, component2_id) VALUES (?, ?)', 
+                    (similar_id, component_id))
+        
+        conn.commit()
+        conn.close()
+        return True
+        
+    except Exception as e:
+        print(f"Error marking components as not similar: {e}")
         conn.close()
         return False 
