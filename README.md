@@ -1,6 +1,5 @@
 # 🖥️ Retro Hardware Inventory System
 
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![Flask](https://img.shields.io/badge/flask-2.0+-orange.svg)
 
