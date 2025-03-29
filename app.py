@@ -3,6 +3,8 @@ import os
 from database import init_db, add_component, get_all_components_with_similarity_info, find_similar_components, merge_components, get_component_by_id, update_component_storage, update_component_quantity, search_components, update_component, delete_component, mark_components_not_similar
 from parser import parse_component
 import sqlite3
+import base64
+from llm_parser import process_image_with_llm
 
 app = Flask(__name__)
 
@@ -218,6 +220,58 @@ def mark_not_similar(component_id, similar_id):
         })
     else:
         return jsonify({'error': 'Failed to mark components as not similar'}), 400
+
+@app.route('/api/upload_image', methods=['POST'])
+def upload_image_api():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+
+    file = request.files['image']
+
+    if file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+
+    if file:
+        try:
+            # Read image bytes
+            image_bytes = file.read()
+            # Encode image to base64
+            base64_image = base64.b64encode(image_bytes).decode('utf-8')
+
+            # Process image using LLM (implement this function in llm_parser.py)
+            extracted_components = process_image_with_llm(base64_image)
+
+            added_count = 0
+            errors = []
+
+            if not extracted_components:
+                 return jsonify({'error': 'Could not extract any components from the image.'}), 400
+
+            # Add extracted components to the database
+            for component_data in extracted_components:
+                try:
+                    # Ensure basic structure; LLM might miss fields
+                    component_data.setdefault('name', 'Unknown Component')
+                    component_data.setdefault('category', 'Uncategorized')
+                    component_data.setdefault('specifications', '')
+                    component_data.setdefault('source', '')
+                    component_data.setdefault('quantity', 1)
+                    add_component(component_data)
+                    added_count += 1
+                except Exception as e:
+                    errors.append(f"Error adding '{component_data.get('name', 'Unknown')}': {str(e)}")
+
+            return jsonify({
+                'message': f'Processed image. Added {added_count} component(s).',
+                'added_count': added_count,
+                'errors': errors
+            })
+
+        except Exception as e:
+            print(f"Error processing image: {str(e)}")
+            return jsonify({'error': f'Failed to process image: {str(e)}'}), 500
+
+    return jsonify({'error': 'Invalid file'}), 400
 
 if __name__ == '__main__':
     app.run(debug=True) 

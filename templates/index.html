@@ -125,6 +125,37 @@
             </div>
         </div>
         
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4><i class="bi bi-camera-fill me-2"></i>Add Components via Image Upload</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group mb-3">
+                            <label for="componentImageInput" class="form-label">Upload Image:</label>
+                            <input type="file" class="form-control" id="componentImageInput" accept="image/*">
+                            <small class="form-text text-muted">
+                                Upload an image of a component package or a list of components.
+                            </small>
+                        </div>
+                        <div id="imagePreviewContainer" class="mb-3 d-none text-center">
+                            <img id="imagePreview" src="#" alt="Image Preview" style="max-width: 100%; max-height: 200px; border: 1px solid var(--primary-color); padding: 5px;"/>
+                        </div>
+                        <div id="imageProcessingStatus" class="mt-3 d-none">
+                            <div class="progress mb-2">
+                                <div id="imageProcessingProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p id="imageProcessingText" class="text-center text-info"></p>
+                        </div>
+                        <button id="uploadImageBtn" class="btn btn-success">
+                            <i class="bi bi-cloud-upload-fill"></i> Process Image & Add Components
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="row mt-4">
             <div class="col-md-12">
                 <div class="card inventory-card">

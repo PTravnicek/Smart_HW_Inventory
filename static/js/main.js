@@ -75,6 +75,8 @@ function retroBootSequence() {
 
 // This function will be called after boot sequence completes
 function initApp() {
+    console.log("initApp called - Initializing application...");
+
     // DOM elements
     const componentInput = document.getElementById('componentInput');
     const previewBtn = document.getElementById('previewBtn');
@@ -93,6 +95,13 @@ function initApp() {
     const zeroQuantityFilter = document.getElementById('zeroQuantityFilter');
     const applyFiltersBtn = document.getElementById('applyFiltersBtn');
     const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+    const componentImageInput = document.getElementById('componentImageInput');
+    const uploadImageBtn = document.getElementById('uploadImageBtn');
+    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const imageProcessingStatus = document.getElementById('imageProcessingStatus');
+    const imageProcessingProgress = document.getElementById('imageProcessingProgress');
+    const imageProcessingText = document.getElementById('imageProcessingText');
     
     // Event listeners
     previewBtn.addEventListener('click', previewParse);
@@ -130,7 +139,134 @@ function initApp() {
         console.log('Could not add sound effects');
     }
     
+    // Add logging to check if elements exist
+    if (!componentImageInput) console.error("Element with ID 'componentImageInput' not found!");
+    if (!uploadImageBtn) console.error("Element with ID 'uploadImageBtn' not found!");
+
+    // Image preview listener
+    if (componentImageInput) {
+        componentImageInput.addEventListener('change', function(event) {
+            console.log("Image input changed.");
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreviewContainer.classList.remove('d-none');
+                }
+                reader.readAsDataURL(file);
+                imageProcessingStatus.classList.add('d-none'); // Hide status on new image select
+            } else {
+                imagePreviewContainer.classList.add('d-none');
+            }
+        });
+    }
+
+    // Image upload listener
+    if (uploadImageBtn) {
+        uploadImageBtn.addEventListener('click', function() {
+            console.log("Upload Image button clicked!");
+
+            const file = componentImageInput.files[0];
+            if (!file) {
+                console.log("No file selected.");
+                alert('Please select an image file first.');
+                return;
+            }
+
+            console.log("File selected:", file.name);
+            const formData = new FormData();
+            formData.append('image', file);
+
+            console.log("FormData created, preparing fetch...");
+
+            // Show processing status
+            imageProcessingStatus.classList.remove('d-none');
+            imageProcessingProgress.style.width = '0%';
+            imageProcessingProgress.classList.add('progress-bar-animated');
+            imageProcessingText.textContent = 'Uploading image...';
+            uploadImageBtn.disabled = true;
+
+            // Simulate progress (replace with actual progress if backend supports it)
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                if (progress <= 100) {
+                    imageProcessingProgress.style.width = `${progress}%`;
+                    if (progress > 50 && progress < 90) imageProcessingText.textContent = 'Processing with Vision LLM...';
+                    else if (progress >= 90) imageProcessingText.textContent = 'Adding components to database...';
+                } else {
+                    clearInterval(progressInterval);
+                }
+            }, 300);
+
+            console.log("Initiating fetch to /api/upload_image");
+
+            fetch('/api/upload_image', {
+                method: 'POST',
+                body: formData,
+                // No 'Content-Type' header - browser sets it correctly for FormData
+            })
+            .then(response => {
+                console.log("Received response from /api/upload_image:", response.status);
+                return response.json().then(data => ({ status: response.status, body: data }))
+            })
+            .then(({ status, body }) => {
+                console.log("Parsed response body:", body);
+                clearInterval(progressInterval); // Stop progress simulation
+                imageProcessingProgress.style.width = '100%';
+                imageProcessingProgress.classList.remove('progress-bar-animated');
+
+                if (status === 200) {
+                    console.log("Image processing successful.");
+                    imageProcessingText.textContent = body.message || 'Image processed successfully.';
+                    imageProcessingProgress.classList.remove('bg-info');
+                    imageProcessingProgress.classList.add('bg-success');
+                    // Show detailed success/error breakdown
+                    let resultDetail = `${body.added_count} component(s) added.`;
+                    if(body.errors && body.errors.length > 0) {
+                        resultDetail += ` ${body.errors.length} error(s) occurred: ${body.errors.join(', ')}`;
+                        imageProcessingProgress.classList.remove('bg-success');
+                        imageProcessingProgress.classList.add('bg-warning');
+                    }
+                     setTimeout(() => { // Show results briefly
+                        alert(resultDetail);
+                        loadComponents(); // Refresh inventory list
+                    }, 500);
+
+                } else {
+                    console.error("Image processing failed with status:", status);
+                    imageProcessingText.textContent = `Error: ${body.error || 'Unknown error'}`;
+                    imageProcessingProgress.classList.remove('bg-info');
+                    imageProcessingProgress.classList.add('bg-danger');
+                     setTimeout(() => { // Show error briefly
+                         alert(`Error processing image: ${body.error || 'Unknown error'}`);
+                     }, 500);
+                }
+            })
+            .catch(error => {
+                clearInterval(progressInterval); // Stop progress simulation
+                console.error('Fetch Error uploading image:', error);
+                imageProcessingText.textContent = 'Upload failed. See console for details.';
+                imageProcessingProgress.style.width = '100%';
+                imageProcessingProgress.classList.remove('progress-bar-animated', 'bg-info');
+                imageProcessingProgress.classList.add('bg-danger');
+                alert('An error occurred during image upload. Check the console (F12).');
+            })
+            .finally(() => {
+                console.log("Fetch process finished.");
+                uploadImageBtn.disabled = false;
+                // Optionally clear the input and preview after processing
+                // componentImageInput.value = '';
+                // imagePreviewContainer.classList.add('d-none');
+            });
+        });
+    } else {
+        console.error("Upload button not found, cannot add event listener.");
+    }
+
     // Load initial components
+    console.log("Calling loadComponents for initial load...");
     loadComponents();
     
     // ALL OTHER FUNCTIONS GO HERE

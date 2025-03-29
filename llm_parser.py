@@ -1,7 +1,8 @@
 import os
 import json
 import requests
-from typing import Dict, Any, Optional
+import base64
+from typing import Dict, Any, Optional, List
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -112,3 +113,80 @@ def parse_with_alternative_llm(input_text: str) -> Optional[Dict[str, Any]]:
     """
     # Implementation details would depend on the specific LLM service or library
     # This is just a placeholder 
+
+# New function to process images
+def process_image_with_llm(base64_image: str) -> List[Dict[str, Any]]:
+    """
+    Use a vision LLM to analyze an image and extract component details.
+
+    Args:
+        base64_image: Base64 encoded string of the image.
+
+    Returns:
+        A list of dictionaries, each representing an extracted component.
+    """
+    extracted_components = []
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4-turbo", # Use the latest general vision model
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": """Analyze the provided image. Identify descriptions of electronic components.
+This could be a photo of a single component package or a scanned list/document showing multiple components.
+For each distinct component found, extract the following details:
+1.  'name': The primary name or part number.
+2.  'category': Infer a general category (e.g., Resistor, Capacitor, IC, Connector, Module, Transistor, Diode). Use 'Uncategorized' if unsure.
+3.  'specifications': Any relevant technical details (voltage, resistance, capacitance, package type, size, tolerance, power rating, etc.). Combine them into a single string.
+4.  'source': If a source or manufacturer is clearly identifiable (e.g., Mouser, Digikey, Texas Instruments), include it. Otherwise, leave as an empty string.
+5.  'quantity': The number of pieces. If not specified, assume 1. Ensure this is an integer.
+
+Ignore any text not related to electronic component descriptions.
+Return the results ONLY as a valid JSON array of objects. Each object in the array should represent one component and contain the keys 'name', 'category', 'specifications', 'source', and 'quantity'.
+Example object: {"name": "LM7805", "category": "Voltage Regulator", "specifications": "TO-220, 5V, 1.5A", "source": "Texas Instruments", "quantity": 5}
+If no components are found, return an empty JSON array []."""
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}" # Assuming JPEG, adjust if needed or let model infer
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=1000 # Adjust as needed
+        )
+
+        result_text = response.choices[0].message.content.strip()
+
+        # Clean up potential markdown code blocks around the JSON
+        if "```json" in result_text:
+            json_start = result_text.find("```json") + 7
+            json_end = result_text.find("```", json_start)
+            result_text = result_text[json_start:json_end].strip()
+        elif result_text.startswith("```") and result_text.endswith("```"):
+             result_text = result_text[3:-3].strip()
+
+        # Parse the JSON response
+        extracted_components = json.loads(result_text)
+
+        # Basic validation and type correction
+        for comp in extracted_components:
+            comp['quantity'] = int(comp.get('quantity', 1)) # Ensure quantity is int
+            comp['source'] = comp.get('source', '') # Ensure source is string
+            comp['specifications'] = comp.get('specifications', '') # Ensure specs is string
+
+
+    except json.JSONDecodeError:
+        print(f"Error: LLM returned invalid JSON: {result_text}")
+        raise ValueError("LLM response was not valid JSON.")
+    except Exception as e:
+        print(f"Error processing image with LLM: {str(e)}")
+        # Reraise or return empty list depending on desired behavior
+        raise e # Reraise the exception
+
+    return extracted_components 
